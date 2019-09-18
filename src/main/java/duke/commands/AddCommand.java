@@ -35,7 +35,7 @@ public class AddCommand extends Command {
             throw new InputException("☹ OOPS!!! The description of a deadline cannot be empty.");
         } else if (this.type.equals("event") && components[1].equals("/by")) {
             throw new InputException("☹ OOPS!!! The description of an event cannot be empty.");
-        } else if (this.type.equals("event") && components[1].equals("/needs")) {
+        } else if (this.type.equals("fixed") && components[1].equals("/needs")) {
             throw new InputException("☹ OOPS!!! The description of a fixed duration task cannot be empty.");
         }
     }
