@@ -6,6 +6,7 @@ import duke.commands.FindCommand;
 import duke.commands.DeleteCommand;
 import duke.commands.ExitCommand;
 import duke.commands.UnknownCommand;
+import duke.commands.ReminderCommand;
 import duke.commands.ListCommand;
 import duke.commands.DoneCommand;
 import duke.exceptions.DukeException;
@@ -30,6 +31,10 @@ public class Parser {
 
             case "list":
                 command = new ListCommand();
+                break;
+
+            case "remind":
+                command = new ReminderCommand();
                 break;
 
             case "delete":
@@ -58,6 +63,8 @@ public class Parser {
             return command;
         } catch (NumberFormatException e) {
             throw new InputException("Invalid index entered. Type 'list' to see your list.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new InputException("Please provide an index. Eg. 'done 5' or 'delete 3'");
         }
     }
 }
