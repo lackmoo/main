@@ -50,8 +50,6 @@ public class DeleteMultipleCommand extends Command {
                 Task removed = taskList.removeTask(finalIndexes.get(i));
                 if (i == 0) {
                     formattedOutput.add("Noted. I've removed these tasks:\n" + removed.toString());
-                } else if (i == finalIndexes.size() - 1) {
-                    formattedOutput.add(removed.toString());
                 } else {
                     formattedOutput.add(removed.toString());
                 }
