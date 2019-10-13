@@ -1,4 +1,4 @@
-import duke.Duke;
+/*import duke.Duke;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;*/
 
 /**
  * Integration testing of Duke.
  */
-public class DukeTest {
+/*public class DukeTest {
     @Test
     public void duke_createNewTask_NewTaskCreatedPermanently() {
         File file = new File("data/dukeTest.txt");
@@ -239,4 +239,4 @@ public class DukeTest {
         //Step 18: Verify that list is empty
         assertEquals(test3.getResponse("list"), testList);
     }
-}
+}*/

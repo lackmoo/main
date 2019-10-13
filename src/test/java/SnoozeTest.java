@@ -1,4 +1,4 @@
-import duke.Parser;
+/*import duke.Parser;
 import duke.Storage;
 import duke.lists.TaskList;
 import duke.Ui;
@@ -47,4 +47,4 @@ public class SnoozeTest {
         assertEquals("E | 0 | TestEvent | 09/20/2019 13:11 | 10/20/2019 00:01",
                 testEvent.storeString());
     }
-}
+}*/
