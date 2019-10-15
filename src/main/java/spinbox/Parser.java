@@ -14,7 +14,7 @@ public class Parser {
     }
 
     /**
-     * Builds the required page data for command.
+     * Builds the required page data for command input.
      * @param inputPageData The page data input.
      * @return Full page data.
      * @throws InputException If the input is invalid.
