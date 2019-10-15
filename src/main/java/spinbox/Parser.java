@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 
 public class Parser {
     private static ArrayDeque<String> pageTrace;
+
     public static void setPageTrace(ArrayDeque<String> pageTraceNew) {
         pageTrace = pageTraceNew;
     }
