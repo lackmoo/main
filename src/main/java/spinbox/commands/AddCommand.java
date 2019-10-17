@@ -35,8 +35,9 @@ public class AddCommand extends Command {
 
     /**
      * Constructor for initialization of variables to support addition of entities.
+     *
      * @param moduleCode A String denoting the module code.
-     * @param content A string containing the content of the processed user input.
+     * @param content    A string containing the content of the processed user input.
      */
     public AddCommand(String moduleCode, String content) {
         this.moduleCode = moduleCode;
@@ -46,7 +47,8 @@ public class AddCommand extends Command {
 
     /**
      * Constructor for creation of Task objects, does some input checking.
-     * @param components Components of the full command
+     *
+     * @param components  Components of the full command
      * @param fullCommand the full command
      * @throws SpinBoxException Can throw from invalid input or storage errors
      */
@@ -74,102 +76,105 @@ public class AddCommand extends Command {
     @Override
     public String execute(ModuleContainer moduleContainer, ArrayDeque<String> pageTrace, Ui ui) throws
             SpinBoxException {
-
-        switch (type) {
-        case "file":
-            if (moduleContainer.checkModuleExists(moduleCode)) {
-                HashMap<String, Module> modules = moduleContainer.getModules();
-                Module module = modules.get(moduleCode);
-                FileList files = module.getFiles();
-                String fileName = content.replace(type.concat(" "), "");
-                files.add(new File(0, fileName));
-                return "Added into " + module.toString() + " file: " + fileName;
-            } else {
-                return NON_EXISTENT_MODULE;
-            }
-
-        case "note":
-            if (moduleContainer.checkModuleExists(moduleCode)) {
-                HashMap<String, Module> modules = moduleContainer.getModules();
-                Module module = modules.get(moduleCode);
-                Notepad notepad = module.getNotepad();
-                String noteContent = content.replace(type.concat(" "), "");
-                notepad.addLine(noteContent);
-                return NOTE_ADDED + moduleCode;
-            } else {
-                return NON_EXISTENT_MODULE;
-            }
-            
-        default:
-            if (!moduleContainer.checkModuleExists(moduleCode)) {
-                String moduleName = this.content;
-                Module module = new Module(this.moduleCode, moduleName);
-                moduleContainer.addModule(module);
-                return MODULE_ADDED + module.toString();
-            } else {
-                return MODULE_NOT_ADDED;
-            }
-        }
-
-    }
-
-    /**
-     * Add Task to task list.
-     * @param taskList TaskList instance.
-     * @param storage Storage instance.
-     * @param ui Ui instance.
-     * @throws SpinBoxException invalid input or storage error.
-     */
-    @Override
-    public String execute(TaskList taskList, Storage storage, Ui ui) throws SpinBoxException {
-        List<String> formattedOutput = new ArrayList<>();
         Task added;
-        List dates;
-        String fixedDuration;
-        String doAfter;
         DateTime start;
         DateTime end;
-
         try {
-            switch (this.type) {
+            switch (type) {
+            case "file":
+                if (moduleContainer.checkModuleExists(moduleCode)) {
+                    HashMap<String, Module> modules = moduleContainer.getModules();
+                    Module module = modules.get(moduleCode);
+                    FileList files = module.getFiles();
+                    String fileName = content.replace(type.concat(" "), "");
+                    files.add(new File(0, fileName));
+                    return "Added into " + module.toString() + " file: " + fileName;
+                } else {
+                    return NON_EXISTENT_MODULE;
+                }
+
+            case "note":
+                if (moduleContainer.checkModuleExists(moduleCode)) {
+                    HashMap<String, Module> modules = moduleContainer.getModules();
+                    Module module = modules.get(moduleCode);
+                    Notepad notepad = module.getNotepad();
+                    String noteContent = content.replace(type.concat(" "), "");
+                    notepad.addLine(noteContent);
+                    return NOTE_ADDED + moduleCode;
+                } else {
+                    return NON_EXISTENT_MODULE;
+                }
+
             case "todo":
-                added = taskList.add(new Todo(fullCommand.replaceFirst("todo ", "")));
-                formattedOutput.add("Got it. I've added this todo:");
-                formattedOutput.add(added.toString());
-                break;
+                if (moduleContainer.checkModuleExists(moduleCode)) {
+                    HashMap<String, Module> modules = moduleContainer.getModules();
+                    Module module = modules.get(moduleCode);
+                    TaskList tasks = module.getTasks();
+                    String taskDescription = content.replace(type.concat(" "), "");
+                    added = tasks.add(new Todo(taskDescription));
+                    return "Added into " + module.toString() + " task: " + added.toString() + "\n"
+                            + "You currently have " + tasks.getList().size()
+                            + ((tasks.getList().size() == 1) ? " task in the list." : " tasks in the list.");
+                } else {
+                    return NON_EXISTENT_MODULE;
+                }
 
             case "deadline":
-                start = new DateTime(fullCommand.split("/by ")[1]);
-                added = taskList.add(new Deadline(fullCommand.substring(0, fullCommand.lastIndexOf(" /by"))
-                        .replaceFirst("deadline ", ""),
-                        start));
-                formattedOutput.add("Got it. I've added this deadline:");
-                formattedOutput.add(added.toString());
-                break;
+                if (moduleContainer.checkModuleExists(moduleCode)) {
+                    HashMap<String, Module> modules = moduleContainer.getModules();
+                    Module module = modules.get(moduleCode);
+                    TaskList tasks = module.getTasks();
+                    String taskDescription = content.replace(type.concat(" "), "");
+                    start = new DateTime(taskDescription.split("/by ")[1]);
+                    added = tasks.add(new Deadline(taskDescription.substring(0, taskDescription.lastIndexOf(" /by")),
+                            start));
+                    return "Added into " + module.toString() + " task: " + added.toString() + "\n"
+                            + "You currently have " + tasks.getList().size()
+                            + ((tasks.getList().size() == 1) ? " task in the list." : " tasks in the list.");
+                } else {
+                    return NON_EXISTENT_MODULE;
+                }
+
             case "exam":
             case "tutorial":
             case "lecture":
             case "lab":
-            default:
-                start = new DateTime(fullCommand.split("/at ")[1], 0);
-                end = new DateTime(fullCommand.split("/at ")[1], 1);
-
-                List<Task> tasks = taskList.getList();
-                for (int i = 0; i < tasks.size(); i++) {
-                    Task currentTask = tasks.get(i);
-                    if (currentTask.isSchedulable()) {
-                        if (((Schedulable) currentTask).isOverlapping(start, end)) {
-                            throw new InputException("Time conflicting with:\n"
-                                    + "    " + (i + 1) + "." + currentTask.toString() + "\n"
-                                    + "Please choose another time interval.");
+                if (moduleContainer.checkModuleExists(moduleCode)) {
+                    HashMap<String, Module> modules = moduleContainer.getModules();
+                    Module module = modules.get(moduleCode);
+                    TaskList tasks = module.getTasks();
+                    String taskDescription = content.replace(type.concat(" "), "");
+                    start = new DateTime(taskDescription.split("/at ")[1], 0);
+                    end = new DateTime(taskDescription.split("/at ")[1], 1);
+                    List<Task> tasksList = tasks.getList();
+                    for (int i = 0; i < tasksList.size(); i++) {
+                        Task currentTask = tasksList.get(i);
+                        if (currentTask.isSchedulable()) {
+                            if (((Schedulable) currentTask).isOverlapping(start, end)) {
+                                throw new InputException("Time conflicting with:\n"
+                                        + "    " + (i + 1) + "." + currentTask.toString() + "\n"
+                                        + "Please choose another time interval.");
+                            }
                         }
                     }
+                    added = tasks.add(new Event(taskDescription.substring(0, taskDescription.lastIndexOf(" /at")),
+                            start, end));
+                    return "Added into " + module.toString() + " task: " + added.toString() + "\n"
+                            + "You currently have " + tasks.getList().size()
+                            + ((tasks.getList().size() == 1) ? " task in the list." : " tasks in the list.");
+                } else {
+                    return NON_EXISTENT_MODULE;
                 }
-                added = taskList.add(new Event(fullCommand.substring(0, fullCommand.lastIndexOf(" /at"))
-                        .replaceFirst("event ", ""),
-                        start, end));
-                formattedOutput.add("Got it. I've added this event:");
-                formattedOutput.add(added.toString());
+
+            default:
+                if (!moduleContainer.checkModuleExists(moduleCode)) {
+                    String moduleName = this.content;
+                    Module module = new Module(this.moduleCode, moduleName);
+                    moduleContainer.addModule(module);
+                    return MODULE_ADDED + module.toString();
+                } else {
+                    return MODULE_NOT_ADDED;
+                }
             }
         } catch (IndexOutOfBoundsException e) {
             throw new InputException("Please ensure that you enter the full command.\n"
@@ -186,10 +191,5 @@ public class AddCommand extends Command {
                     + "to <end as MM/DD/YYYY HH:MM> /every DD:HH:MM"
             );
         }
-        formattedOutput.add("You currently have " + taskList.getList().size()
-                + ((taskList.getList().size() == 1) ? " task in the list." : " tasks in the list."));
-        taskList.saveData();
-        taskList.sort();
-        return ui.showFormatted(formattedOutput);
     }
 }
