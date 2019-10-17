@@ -28,7 +28,6 @@ public class AddCommand extends Command {
     private static final String NON_EXISTENT_MODULE = "This module does not exist.";
     private static final String NOTE_ADDED = "A new note has been successfully added to ";
     private String type;
-    private String fullCommand;
 
     private String moduleCode;
     private String content;
@@ -42,33 +41,6 @@ public class AddCommand extends Command {
         this.moduleCode = moduleCode;
         this.content = content;
         this.type = content.split(" ")[0];
-    }
-
-    /**
-     * Constructor for creation of Task objects, does some input checking.
-     * @param components  Components of the full command
-     * @param fullCommand the full command
-     * @throws SpinBoxException Can throw from invalid input or storage errors
-     */
-    public AddCommand(String[] components, String fullCommand) throws SpinBoxException {
-        this.type = components[0];
-        this.fullCommand = fullCommand;
-
-        if (components.length == 1) {
-            throw new InputException("☹ OOPS!!! The description of a task cannot be empty.");
-        } else if (this.type.equals("deadline") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of a deadline cannot be empty.");
-        } else if (this.type.equals("event") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of an event cannot be empty.");
-        } else if (this.type.equals("exam") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of an exam cannot be empty.");
-        } else if (this.type.equals("tutorial") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of an tutorial cannot be empty.");
-        } else if (this.type.equals("lab") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of an lab cannot be empty.");
-        } else if (this.type.equals("lecture") && components[1].equals("/by")) {
-            throw new InputException("☹ OOPS!!! The description of an lecture cannot be empty.");
-        }
     }
 
     @Override
@@ -109,6 +81,9 @@ public class AddCommand extends Command {
                     Module module = modules.get(moduleCode);
                     TaskList tasks = module.getTasks();
                     String taskDescription = content.replace(type.concat(" "), "");
+                    if (taskDescription.equals("todo")) {
+                        throw new InputException("☹ OOPS!!! The description of a task cannot be empty.");
+                    }
                     added = tasks.add(new Todo(taskDescription));
                     return "Added into " + module.toString() + " task: " + added.toString() + "\n"
                             + "You currently have " + tasks.getList().size()
@@ -123,6 +98,9 @@ public class AddCommand extends Command {
                     Module module = modules.get(moduleCode);
                     TaskList tasks = module.getTasks();
                     String taskDescription = content.replace(type.concat(" "), "");
+                    if (taskDescription.split(" ")[0].equals("/by")) {
+                        throw new InputException("☹ OOPS!!! The description of a deadline cannot be empty.");
+                    }
                     start = new DateTime(taskDescription.split("/by ")[1]);
                     added = tasks.add(new Deadline(taskDescription.substring(0, taskDescription.lastIndexOf(" /by")),
                             start));
@@ -142,6 +120,17 @@ public class AddCommand extends Command {
                     Module module = modules.get(moduleCode);
                     TaskList tasks = module.getTasks();
                     String taskDescription = content.replace(type.concat(" "), "");
+                    if (taskDescription.split(" ")[0].equals("/at")) {
+                        if (this.type.equals("exam")) {
+                            throw new InputException("☹ OOPS!!! The description of an exam cannot be empty.");
+                        } else if (this.type.equals("tutorial")) {
+                            throw new InputException("☹ OOPS!!! The description of a tutorial cannot be empty.");
+                        } else if (this.type.equals("lab")) {
+                            throw new InputException("☹ OOPS!!! The description of a lab cannot be empty.");
+                        } else if (this.type.equals("lecture")) {
+                            throw new InputException("☹ OOPS!!! The description of a lecture cannot be empty.");
+                        }
+                    }
                     start = new DateTime(taskDescription.split("/at ")[1], 0);
                     end = new DateTime(taskDescription.split("/at ")[1], 1);
                     List<Task> tasksList = tasks.getList();
@@ -177,16 +166,14 @@ public class AddCommand extends Command {
         } catch (IndexOutOfBoundsException e) {
             throw new InputException("Please ensure that you enter the full command.\n"
                     + "SpinBox.Tasks.Deadline: deadline <task name> /by <MM/DD/YYYY HH:MM>\n"
-                    + "SpinBox.Tasks.Do-After: do-after <task name> /after <do-after event or time>\n"
-                    + "SpinBox.Tasks.Event: event <task name> /at <start as MM/DD/YYYY HH:MM> "
+                    + "SpinBox.Tasks.Exam: exam <task name> /at <start as MM/DD/YYYY HH:MM> "
                     + "to <end as MM/DD/YYYY HH:MM>\n"
-                    + "SpinBox.Tasks.Fixed: fixed <task name> /needs <fixed task duration>\n"
-                    + "SpinBox.Tasks.Tentative: tentative <task name> /around <start as MM/DD/YYYY HH:MM> "
+                    + "SpinBox.Tasks.Tutorial: tutorial <task name> /at <start as MM/DD/YYYY HH:MM> "
                     + "to <end as MM/DD/YYYY HH:MM>\n"
-                    + "SpinBox.Tasks.Within: do-within <task name> /between <start as MM/DD/YYYY HH:MM> "
-                    + "and <end as MM/DD/YYYY HH:MM>\n"
-                    + "SpinBox.Tasks.Recurring: recurring <task name> /at <start as MM/DD/YYYY HH:MM> "
-                    + "to <end as MM/DD/YYYY HH:MM> /every DD:HH:MM"
+                    + "SpinBox.Tasks.Lab: lab <task name> /at <start as MM/DD/YYYY HH:MM> "
+                    + "to <end as MM/DD/YYYY HH:MM>\n"
+                    + "SpinBox.Tasks.Lecture: lecture <task name> /at <start as MM/DD/YYYY HH:MM> "
+                    + "to <end as MM/DD/YYYY HH:MM>\n"
             );
         }
     }
