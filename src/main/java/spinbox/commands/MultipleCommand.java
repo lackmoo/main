@@ -86,7 +86,7 @@ public class MultipleCommand extends Command {
         try {
             String[] splitIndexes = content.replace(type.concat(" "), "").split(",");
             if ((type.equals("file") || type.equals("note") || type.equals("task")) && (splitIndexes.length == 1)
-            && splitIndexes[0].matches("\\d+")) {
+                && splitIndexes[0].matches("\\d+")) {
                 throw new InputException(REMOVE_SINGLE_TASK);
             } else if ((type.equals("file") || type.equals("note") || type.equals("task"))
                     && (splitIndexes.length == 1)) {
@@ -151,7 +151,7 @@ public class MultipleCommand extends Command {
             default:
                 throw new InputException(INVALID_REMOVE_FORMAT);
             }
-        } catch (IndexOutOfBoundsException | NumberFormatException e){
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
             throw new InputException(INVALID_INDEX);
         }
     }
