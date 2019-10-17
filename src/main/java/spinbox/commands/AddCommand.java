@@ -35,9 +35,8 @@ public class AddCommand extends Command {
 
     /**
      * Constructor for initialization of variables to support addition of entities.
-     *
      * @param moduleCode A String denoting the module code.
-     * @param content    A string containing the content of the processed user input.
+     * @param content A string containing the content of the processed user input.
      */
     public AddCommand(String moduleCode, String content) {
         this.moduleCode = moduleCode;
@@ -47,7 +46,6 @@ public class AddCommand extends Command {
 
     /**
      * Constructor for creation of Task objects, does some input checking.
-     *
      * @param components  Components of the full command
      * @param fullCommand the full command
      * @throws SpinBoxException Can throw from invalid input or storage errors
