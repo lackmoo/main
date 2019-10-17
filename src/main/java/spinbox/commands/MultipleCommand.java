@@ -5,6 +5,8 @@ import spinbox.containers.lists.FileList;
 import spinbox.entities.Notepad;
 import spinbox.entities.items.File;
 import spinbox.entities.Module;
+import spinbox.exceptions.DataReadWriteException;
+import spinbox.exceptions.InvalidIndexException;
 import spinbox.exceptions.SpinBoxException;
 import spinbox.exceptions.InputException;
 import spinbox.Storage;
@@ -22,10 +24,18 @@ public class MultipleCommand extends Command {
     private static final String NON_EXISTENT_MODULE = "This module does not exist.";
     private static final String NOTES_REMOVED = "The specified notes have been successfully removed from ";
     private static final String PROVIDE_INDEX = "Please provide an index to be removed.";
+    private static final String INVALID_INDEX = "Please enter a valid index.";
+    private static final String REMOVE_SINGLE_TASK = "To remove a single task, provide the input in this "
+            + "format instead: remove <pageContent> : <type> <one index in integer form>.";
+    private static final String INDEX_SEPARATION = "Ensure that the indexes are separated by ',' without any spacing. "
+            + "E.g. remove-multiple <pageContent> : <type> 2,3,4";
+    private static final String INVALID_REMOVE_FORMAT = "Please use valid remove-multiple format:\n"
+            + "remove-multiple <pageContent> : <type> <index>";
     private String type;
 
     private String moduleCode;
     private String content;
+    private StringBuilder outputMessage = new StringBuilder();
 
     /**
      * Constructor for initialization of variables to support removal of entities.
@@ -38,45 +48,68 @@ public class MultipleCommand extends Command {
         this.type = content.split(" ")[0];
     }
 
+    private StringBuilder removeMultipleFile(List<Integer> finalIndexes, FileList files, StringBuilder outputMessage)
+            throws InvalidIndexException, DataReadWriteException {
+        for (int i = 0; i < finalIndexes.size(); i++) {
+            File fileRemoved = files.remove(finalIndexes.get(i));
+            if (i == 0) {
+                outputMessage.append("Noted. I've removed these tasks:\n");
+                outputMessage.append(fileRemoved.toString()).append("\n");
+            } else {
+                outputMessage.append(fileRemoved.toString()).append("\n");
+            }
+        }
+        return outputMessage;
+    }
+
+    private StringBuilder removeMultipleTask(List<Integer> finalIndexes, TaskList tasks, StringBuilder outputMessage)
+            throws InvalidIndexException, DataReadWriteException {
+        for (int i = 0; i < finalIndexes.size(); i++) {
+            Task taskRemoved = tasks.remove(finalIndexes.get(i));
+            if (i == 0) {
+                outputMessage.append("Noted. I've removed these tasks:\n");
+                outputMessage.append(taskRemoved.toString()).append("\n");
+            } else {
+                outputMessage.append(taskRemoved.toString()).append("\n");
+            }
+        }
+        return outputMessage;
+    }
+
     @Override
     public String execute(ModuleContainer moduleContainer, ArrayDeque<String> pageTrace, Ui ui) throws
             SpinBoxException {
         int inputSize = content.split(" ").length;
-        if (inputSize == 1) {
-            throw new InputException(PROVIDE_INDEX);
-        }
         if (inputSize > 2) {
-            throw new InputException("Ensure that the indexes are separated by ',' without any spacing. "
-                    + "E.g. remove-multiple <pageContent> : <type> 2,3,4");
+            throw new InputException(INDEX_SEPARATION);
         }
         try {
             String[] splitIndexes = content.replace(type.concat(" "), "").split(",");
-            if (splitIndexes.length == 1) {
-                throw new InputException("To remove a single task, provide the input in this "
-                        + "format instead: remove <pageContent> : <type> <one index in integer form>.");
+            if ((type.equals("file") || type.equals("note") || type.equals("task")) && (splitIndexes.length == 1)
+            && splitIndexes[0].matches("\\d+")) {
+                throw new InputException(REMOVE_SINGLE_TASK);
+            } else if ((type.equals("file") || type.equals("note") || type.equals("task"))
+                    && (splitIndexes.length == 1)) {
+                throw new InputException(PROVIDE_INDEX);
+            } else if (!type.equals("file") && !type.equals("note") && !type.equals("task")) {
+                throw new InputException(INVALID_REMOVE_FORMAT);
             }
             List<Integer> finalIndexes = new ArrayList<>();
             for (String convert : splitIndexes) {
                 finalIndexes.add(Integer.parseInt(convert) - 1);
             }
             finalIndexes.sort(Collections.reverseOrder());
-            StringBuilder outputMessage = new StringBuilder();
             switch (type) {
             case "file":
                 if (moduleContainer.checkModuleExists(moduleCode)) {
                     HashMap<String, Module> modules = moduleContainer.getModules();
                     Module module = modules.get(moduleCode);
                     FileList files = module.getFiles();
-                    for (int i = 0; i < finalIndexes.size(); i++) {
-                        File fileRemoved = files.remove(finalIndexes.get(i));
-                        if (i == 0) {
-                            outputMessage.append("Noted. I've removed these tasks:\n");
-                            outputMessage.append(fileRemoved.toString()).append("\n");
-                        } else {
-                            outputMessage.append(fileRemoved.toString()).append("\n");
-                        }
+                    if (inputSize == 1) {
+                        throw new InputException(PROVIDE_INDEX);
                     }
-                    outputMessage.append("You currently have ").append(files.getList().size()).append((
+                    removeMultipleFile(finalIndexes, files, outputMessage).append("You currently have ")
+                            .append(files.getList().size()).append((
                             files.getList().size() == 1) ? " file in the list." : " files in the list.");
                     return outputMessage.toString();
                 } else {
@@ -88,6 +121,9 @@ public class MultipleCommand extends Command {
                     HashMap<String, Module> modules = moduleContainer.getModules();
                     Module module = modules.get(moduleCode);
                     Notepad notepad = module.getNotepad();
+                    if (inputSize == 1) {
+                        throw new InputException(PROVIDE_INDEX);
+                    }
                     for (Integer finalIndex : finalIndexes) {
                         notepad.removeLine(finalIndex);
                     }
@@ -101,16 +137,11 @@ public class MultipleCommand extends Command {
                     HashMap<String, Module> modules = moduleContainer.getModules();
                     Module module = modules.get(moduleCode);
                     TaskList tasks = module.getTasks();
-                    for (int i = 0; i < finalIndexes.size(); i++) {
-                        Task taskRemoved = tasks.remove(finalIndexes.get(i));
-                        if (i == 0) {
-                            outputMessage.append("Noted. I've removed these tasks:\n");
-                            outputMessage.append(taskRemoved.toString()).append("\n");
-                        } else {
-                            outputMessage.append(taskRemoved.toString()).append("\n");
-                        }
+                    if (inputSize == 1) {
+                        throw new InputException(PROVIDE_INDEX);
                     }
-                    outputMessage.append("You currently have ").append(tasks.getList().size()).append((
+                    removeMultipleTask(finalIndexes, tasks, outputMessage).append("You currently have ")
+                            .append(tasks.getList().size()).append((
                             tasks.getList().size() == 1) ? " task in the list." : " tasks in the list.");
                     return outputMessage.toString();
                 } else {
@@ -118,13 +149,10 @@ public class MultipleCommand extends Command {
                 }
 
             default:
-                throw new InputException("Please use valid remove format:\n"
-                        + "remove <pageContent> : <type> <index>");
+                throw new InputException(INVALID_REMOVE_FORMAT);
             }
-        } catch (IndexOutOfBoundsException e) {
-            throw new InputException("Invalid index entered.");
-        } catch (NumberFormatException e) {
-            throw new InputException("Invalid index entered. Please ensure the index is in integer form.");
+        } catch (IndexOutOfBoundsException | NumberFormatException e){
+            throw new InputException(INVALID_INDEX);
         }
     }
 }
