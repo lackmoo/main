@@ -118,7 +118,6 @@ public class AddCommand extends Command {
                 if (moduleContainer.checkModuleExists(moduleCode)) {
                     HashMap<String, Module> modules = moduleContainer.getModules();
                     Module module = modules.get(moduleCode);
-                    TaskList tasks = module.getTasks();
                     String taskDescription = content.replace(type.concat(" "), "");
                     if (taskDescription.split(" ")[0].equals("/at")) {
                         if (this.type.equals("exam")) {
@@ -131,6 +130,7 @@ public class AddCommand extends Command {
                             throw new InputException("☹ OOPS!!! The description of a lecture cannot be empty.");
                         }
                     }
+                    TaskList tasks = module.getTasks();
                     start = new DateTime(taskDescription.split("/at ")[1], 0);
                     end = new DateTime(taskDescription.split("/at ")[1], 1);
                     List<Task> tasksList = tasks.getList();
