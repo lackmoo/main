@@ -127,10 +127,10 @@ public class Parser {
         case "update":
             command = new UpdateCommand(pageDataComponents, content);
             break;
-        case "remove-multiple":
+        case "remove-*":
             command = new RemoveMultipleCommand(pageDataComponents, content);
             break;
-        case "update-multiple":
+        case "update-*":
             command = new UpdateMultipleCommand(pageDataComponents, content);
             break;
         case "find":

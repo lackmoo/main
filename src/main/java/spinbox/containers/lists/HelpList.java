@@ -12,9 +12,9 @@ public class HelpList {
             + "\t1. help / view : To navigate and change view from the current page to the specified page\n"
             + "\t2. help / add : To add a module/task/grade/file component\n"
             + "\t3. help / remove : To remove a module/task/grade/file component\n"
-            + "\t4. help / remove-multiple : To remove multiple task/grade/file components\n"
+            + "\t4. help / remove-* : To remove multiple task/grade/file components\n"
             + "\t5. help / update : To update a task/grade/file component to a value\n"
-            + "\t6. help / update-multiple : To update multiple task/grade/file components to a value\n"
+            + "\t6. help / update-* : To update multiple task/grade/file components to a value\n"
             + "\t7. help / set-name : To set task/grade/file name to a new name\n"
             + horizontalLine);
 
@@ -63,12 +63,12 @@ public class HelpList {
             + "\t3. Remove the first grade component under CG1111: TBC\n"
             + "\t4. Remove the first task under module CG1111: remove CG1111 / task 1\n" + horizontalLine);
 
-    public final String removeMultiple = helpOutput.concat(horizontalLine + "\n" + "Command: remove-multiple\n"
+    public final String removeMultiple = helpOutput.concat(horizontalLine + "\n" + "Command: remove-*\n"
             + "Function: To remove multiple task/grade/file components\n"
-            + "Format: remove-multiple <module code> / <item type> <item indexes>\n"
+            + "Format: remove-* <module code> / <item type> <item indexes>\n"
             + "Example:\n"
             + "\t* Note: omit module code if current page is the specific module *\n"
-            + "\t1. Remove the first 2 files under module CG1111: remove-multiple CG1111 / file 1,2\n"
+            + "\t1. Remove the first 2 files under module CG1111: remove-* CG1111 / file 1,2\n"
             + "\t2. Remove the first 2 grade components under CG1111: TBC\n"
             + "\t3. Remove the first 2 tasks under module CG1111: remove CG1111 / task 1,2\n" + horizontalLine);
 
@@ -81,14 +81,14 @@ public class HelpList {
             + "\t2. Update a grade component under CG1111: TBC\n"
             + "\t3. Update a task to done under module CG1111: update CG1111 / task 1 true\n" + horizontalLine);
 
-    public final String updateMultiple = helpOutput.concat(horizontalLine + "\n" + "Command: update-multiple\n"
+    public final String updateMultiple = helpOutput.concat(horizontalLine + "\n" + "Command: update-*\n"
             + "Function: To update multiple task/grade/file components to a value\n"
-            + "Format: update-multiple <module code> / <item type> <item indexes> <item values>\n"
+            + "Format: update-* <module code> / <item type> <item indexes> <item values>\n"
             + "Example:\n"
             + "\t* Note: omit module code if current page is the specific module *\n"
-            + "\t1. Update the first 2 files under module CG1111: update-multiple CG1111 / file 1,2 true\n"
+            + "\t1. Update the first 2 files under module CG1111: update-* CG1111 / file 1,2 true\n"
             + "\t2. Update the first 2 grade components under CG1111: TBC\n"
-            + "\t3. Update the first 2 tasks under module CG1111: update-multiple CG1111 / task 1,2 true\n"
+            + "\t3. Update the first 2 tasks under module CG1111: update-* CG1111 / task 1,2 true\n"
             + horizontalLine);
 
     public final String setName = helpOutput.concat(horizontalLine + "\n" + "Command: set-name\n"
