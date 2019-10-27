@@ -100,7 +100,7 @@ public class SetDateCommand extends Command {
                                 + 2, fullTaskDescription.lastIndexOf("(by: ") - 1);
                         replaceStart = new DateTime(replaceDateTime);
                         replaceEnd = null;
-                    } else if (taskType.equals("TODO")){
+                    } else if (taskType.equals("TODO")) {
                         throw new InputException(SET_DATE_UNAVAILABLE_TODO);
                     } else {
                         throw new InputException(DATETIME_ERROR);
