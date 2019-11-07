@@ -151,12 +151,15 @@ public class RemoveCommand extends Command {
                         && toBeRemovedModuleName.equals(moduleName)) {
                     Module module = new Module(moduleCode, moduleName);
                     moduleContainer.removeModule(moduleCode, module);
-                    return HORIZONTAL_LINE + "\n" + MODULE_REMOVED + moduleCode + " " + moduleName;
+                    return HORIZONTAL_LINE + "\n" + MODULE_REMOVED + moduleCode + " " + moduleName + "\n"
+                            + HORIZONTAL_LINE;
                 } else {
-                    return HORIZONTAL_LINE + "\n" + NON_EXISTENT_MODULE;
+                    return HORIZONTAL_LINE + "\n" + NON_EXISTENT_MODULE + "\n" + HORIZONTAL_LINE;
                 }
             } catch (IndexOutOfBoundsException e) {
                 throw new InputException(MODULE_REMOVE_FORMAT);
+            } catch (NullPointerException e) {
+                throw new InputException(NON_EXISTENT_MODULE);
             }
 
         default:
