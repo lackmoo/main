@@ -145,7 +145,10 @@ public class RemoveCommand extends Command {
                 String[] contentComponents = content.split(" ", 3);
                 moduleCode = contentComponents[1].toUpperCase();
                 String moduleName = contentComponents[2];
-                if (moduleContainer.checkModuleExists(moduleCode)) {
+                Module moduleToBeRemoved = moduleContainer.getModule(moduleCode);
+                String toBeRemovedModuleName = moduleToBeRemoved.getModuleName();
+                if (moduleContainer.checkModuleExists(moduleCode)
+                        && toBeRemovedModuleName.equals(moduleName)) {
                     Module module = new Module(moduleCode, moduleName);
                     moduleContainer.removeModule(moduleCode, module);
                     return HORIZONTAL_LINE + "\n" + MODULE_REMOVED + moduleCode + " " + moduleName;
