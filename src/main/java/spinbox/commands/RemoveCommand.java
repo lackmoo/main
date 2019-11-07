@@ -144,9 +144,9 @@ public class RemoveCommand extends Command {
             try {
                 String[] contentComponents = content.split(" ", 3);
                 moduleCode = contentComponents[1].toUpperCase();
-                String moduleName = contentComponents[2];
+                String moduleName = contentComponents[2].toUpperCase();
                 Module moduleToBeRemoved = moduleContainer.getModule(moduleCode);
-                String toBeRemovedModuleName = moduleToBeRemoved.getModuleName();
+                String toBeRemovedModuleName = moduleToBeRemoved.getModuleName().toUpperCase();
                 if (moduleContainer.checkModuleExists(moduleCode)
                         && toBeRemovedModuleName.equals(moduleName)) {
                     Module module = new Module(moduleCode, moduleName);
