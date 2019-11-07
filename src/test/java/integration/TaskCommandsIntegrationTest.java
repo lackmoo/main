@@ -96,9 +96,15 @@ public class TaskCommandsIntegrationTest {
         Task testTask1 = new Todo("Test 1");
         Task testTask2 = new Lab("Test 2", new DateTime("01/04/2019 10:00"),
                 new DateTime("01/04/2019 12:00"));
+        Task testTask3 = new Tutorial("Test 3", new DateTime("01/05/2020 10:00"),
+                new DateTime("01/05/2020 12:00"));
+        Task testTask4 = new Event("Test 4", new DateTime("01/05/2021 10:00"),
+                new DateTime("01/05/2021 12:00"));
 
         taskList.add(testTask1);
         taskList.add(testTask2);
+        taskList.add(testTask3);
+        taskList.add(testTask4);
 
         pageTrace = new ArrayDeque<>();
         ui = new Ui(true);
@@ -108,14 +114,28 @@ public class TaskCommandsIntegrationTest {
         command = Parser.parse(setNameForTask1);
         command.execute(testContainer, pageTrace, ui, false);
 
-        String setNameForTask2 = "set-name CG1112 / task 2 to: Todo";
+        String setNameForTask3 = "set-name CG1112 / task 2 to: Tutorial";
+        Parser.setPageTrace(pageTrace);
+        command = Parser.parse(setNameForTask3);
+        command.execute(testContainer, pageTrace, ui, false);
+
+        String setNameForTask4 = "set-name CG1112 / task 3 to: Event";
+        Parser.setPageTrace(pageTrace);
+        command = Parser.parse(setNameForTask4);
+        command.execute(testContainer, pageTrace, ui, false);
+
+        String setNameForTask2 = "set-name CG1112 / task 4 to: Todo";
         Parser.setPageTrace(pageTrace);
         command = Parser.parse(setNameForTask2);
         command.execute(testContainer, pageTrace, ui, false);
 
         assertEquals(taskList.get(0).toString(), "[LAB][NOT DONE] Lab (at: 01/04/2019 10:00"
                 + " to 01/04/2019 12:00)");
-        assertEquals(taskList.get(1).toString(), "[T][NOT DONE] Todo");
+        assertEquals(taskList.get(1).toString(), "[TUT][NOT DONE] Tutorial (at: 01/05/2020 10:00"
+                + " to 01/05/2020 12:00)");
+        assertEquals(taskList.get(2).toString(), "[E][NOT DONE] Event (at: 01/05/2021 10:00"
+                + " to 01/05/2021 12:00)");
+        assertEquals(taskList.get(3).toString(), "[T][NOT DONE] Todo");
     }
 
     @Test
