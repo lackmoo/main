@@ -18,7 +18,8 @@ import java.util.HashMap;
 
 public class RemoveCommand extends Command {
     private static final String HORIZONTAL_LINE = "____________________________________________________________";
-    private static final String NON_EXISTENT_MODULE = "This module does not exist.";
+    private static final String NON_EXISTENT_MODULE = "This module does not exist. Please ensure that the "
+            + "module code and module name are exactly the same as what is listed in the modules page.";
     private static final String NOTE_REMOVED = "A note has been successfully removed from ";
     private static final String PROVIDE_INDEX = "Please provide an index to be removed.";
     private static final String INVALID_REMOVE_FORMAT = "Please use valid remove format:\n"
