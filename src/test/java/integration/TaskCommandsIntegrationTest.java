@@ -34,7 +34,7 @@ public class TaskCommandsIntegrationTest {
     private ArrayDeque<String> pageTrace;
     private Command command;
     private Ui ui;
-
+  
     @Test
     public void loadDataSuccessful_AddTasksThenManualClear_successfulRepopulationOfData() throws
             StorageException, InvalidIndexException {
@@ -164,7 +164,7 @@ public class TaskCommandsIntegrationTest {
 
         taskList.add(testTask1);
         taskList.add(testTask2);
-
+  
         pageTrace = new ArrayDeque<>();
         ui = new Ui(true);
 
@@ -182,7 +182,7 @@ public class TaskCommandsIntegrationTest {
         assertEquals(taskList.get(1).toString(), "[EXAM][NOT DONE] Test 2 (at: 02/05/2019 16:00"
                 + " to 02/05/2019 19:00)");
     }
-
+      
     @Test
     public void setDateUnsuccessful_invalidIndexUsed_exceptionThrown() throws
             SpinBoxException {
