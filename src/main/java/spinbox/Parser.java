@@ -21,7 +21,7 @@ import java.util.ArrayDeque;
 
 public class Parser {
     private static final String INVALID_COMMAND = "Please provide a valid command:\n"
-            + "'<action> / <page> <content>' or 'bye'";
+            + "'<action> <page> / <content>' or 'bye'";
     private static ArrayDeque<String> pageTrace;
 
     public static void setPageTrace(ArrayDeque<String> pageTraceNew) {
