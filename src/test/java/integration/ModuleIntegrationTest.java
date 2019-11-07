@@ -1,9 +1,6 @@
 package integration;
 
 import org.junit.jupiter.api.Test;
-import spinbox.Parser;
-import spinbox.Ui;
-import spinbox.commands.Command;
 import spinbox.containers.ModuleContainer;
 import spinbox.entities.Module;
 import spinbox.entities.items.File;
@@ -12,12 +9,9 @@ import spinbox.entities.items.tasks.Todo;
 import spinbox.exceptions.SpinBoxException;
 import spinbox.exceptions.StorageException;
 
-import java.util.ArrayDeque;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class ModuleIntegrationTest {
     @Test
