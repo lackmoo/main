@@ -19,7 +19,7 @@ public class FileList extends SpinBoxList<File> {
     }
 
     /**
-     * Does not order the files at the moment as not sure how to order yet.
+     * Order the files in alphabetical order.
      */
     static class FileComparator implements Comparator<File> {
         @Override
@@ -36,7 +36,9 @@ public class FileList extends SpinBoxList<File> {
     public void loadData() throws DataReadWriteException, CorruptedDataException {
         List<String> savedData = localStorage.loadData();
         for (String datum : savedData) {
-            this.addFromStorage(new File(datum));
+            File file = new File();
+            file.fromStoredString(datum);
+            this.addFromStorage(file);
         }
     }
 
