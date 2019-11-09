@@ -3,12 +3,15 @@ package spinbox.gui;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -18,10 +21,13 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
+import javafx.stage.Screen;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
+import javafx.util.Pair;
+import spinbox.DateTime;
 import spinbox.SpinBox;
 import spinbox.containers.ModuleContainer;
 import spinbox.containers.lists.FileList;
@@ -30,6 +36,7 @@ import spinbox.containers.lists.TaskList;
 import spinbox.entities.Module;
 import spinbox.entities.items.File;
 import spinbox.entities.items.GradedComponent;
+import spinbox.entities.items.tasks.Exam;
 import spinbox.entities.items.tasks.Schedulable;
 import spinbox.entities.items.tasks.Task;
 import spinbox.entities.items.tasks.TaskType;
@@ -55,6 +62,10 @@ public class MainWindow extends GridPane {
     private static final String TASKS = "Tasks";
     private static final String FILES = "Files";
     private static final String GRADES = "Grades";
+    private static final String HELP_POPUP = "Welcome to the help page.";
+    private static final String HELP_PAGE_POPUP = "Example:";
+    private static final String NO_DATA = "We notice you have no existing data."
+            + " Type \"populate\" into this input box to load sample data.";
 
     @FXML
     private TabPane tabPane;
@@ -68,6 +79,8 @@ public class MainWindow extends GridPane {
     private GridPane modulesTabContainer;
     @FXML
     private StackPane calendarView;
+    @FXML
+    private VBox examsList;
 
     private SpinBox spinBox;
     private String specificModuleCode;
@@ -75,7 +88,7 @@ public class MainWindow extends GridPane {
     private Popup popup = new Popup();
     private ArrayList<String> commandHistory = new ArrayList<>();
     private int commandCount = 0;
-    private TaskList allTasks;
+    private List<Pair<String, Task>> allTasks;
 
     /**
      * FXML method that is used as a post-constructor function to initialize variables and tabbed views.
@@ -187,6 +200,7 @@ public class MainWindow extends GridPane {
             break;
         }
         userInput.clear();
+        suggestPopulate();
         if (spinBox.isShutdown()) {
             System.exit(0);
         }
@@ -199,9 +213,20 @@ public class MainWindow extends GridPane {
      * @throws InvalidIndexException should be displayed.
      */
     public void initializeGui() throws DataReadWriteException, FileCreationException, InvalidIndexException {
-        this.updateMain();
         this.setPopup(popup);
+        this.suggestPopulate();
+        this.updateMain();
         this.enableCommandHistory();
+    }
+
+    private void suggestPopulate() {
+        if (spinBox.getModuleContainer().getModules().isEmpty()) {
+            userInput.setPromptText(NO_DATA);
+            userInput.setStyle("-fx-prompt-text-fill: #FF0000; -fx-font-weight: BOLD");
+        } else {
+            userInput.setPromptText("");
+            userInput.setStyle("-fx-font-weight: normal");
+        }
     }
 
     private void updateAll()
@@ -228,8 +253,9 @@ public class MainWindow extends GridPane {
 
     private void updateOverallTasksView() throws DataReadWriteException, InvalidIndexException, FileCreationException {
 
-        allTasks = new TaskList("Main");
+        allTasks = new ArrayList<>();
         overallTasksView.getChildren().clear();
+        overallTasksView.getChildren().add(addHeader("URGENT TASK"));
         ModuleContainer moduleContainer = spinBox.getModuleContainer();
         HashMap<String, Module> modules = moduleContainer.getModules();
         for (Map.Entry module : modules.entrySet()) {
@@ -238,12 +264,41 @@ public class MainWindow extends GridPane {
             TaskList tasks = moduleObject.getTasks();
             for (Task task : tasks.getList()) {
                 if (!task.getDone()) {
-                    allTasks.add(task);
+                    allTasks.add(new Pair<>(moduleCode, task));
                 }
             }
         }
 
-        allTasks.sort();
+        allTasks.sort((o1, o2) -> {
+            Task a = o1.getValue();
+            Task b = o2.getValue();
+
+            DateTime startDateA = null;
+            DateTime startDateB = null;
+
+            if (!a.getDone() && b.getDone()) {
+                return -1;
+            } else if (a.getDone() && !b.getDone()) {
+                return 1;
+            }
+
+            if (a.isSchedulable()) {
+                startDateA = ((Schedulable) a).getStartDate();
+            }
+            if (b.isSchedulable()) {
+                startDateB = ((Schedulable) b).getStartDate();
+            }
+
+            if (startDateA == null && startDateB == null) {
+                return a.getName().compareToIgnoreCase(b.getName());
+            } else if (startDateA == null) {
+                return 1;
+            } else if (startDateB == null) {
+                return -1;
+            } else {
+                return startDateA.compareTo(startDateB);
+            }
+        });
 
         int boxes;
         if (allTasks.size() < 5) {
@@ -251,24 +306,61 @@ public class MainWindow extends GridPane {
         }  else {
             boxes = 5;
         }
-        for (int i = 0; i < boxes; i++) {
-            Task addTask = allTasks.get(i);
-            String description = addTask.getTaskType().name();
-            description += ": " + addTask.getName();
-            String dates = "";
-            if (addTask.isSchedulable()) {
-                Schedulable task = ((Schedulable)addTask);
-                dates += task.getStartDate().toString();
-                if (TaskType.taskWithBothDates().contains(task.getTaskType())) {
-                    dates += " " + task.getEndDate().toString();
-                    dates = "At: " + dates;
-                } else {
-                    dates = "By: " + dates;
+
+        int count = 0;
+        int index = 0;
+        while (count < boxes && index < allTasks.size()) {
+            Task addTask = allTasks.get(index).getValue();
+            if (addTask.getTaskType() != TaskType.EXAM) {
+                String moduleCode = allTasks.get(index).getKey();
+                String description = addTask.getTaskType().name();
+                description += ": " + addTask.getName();
+                String dates = "";
+                if (addTask.isSchedulable()) {
+                    Schedulable task = ((Schedulable)addTask);
+                    dates += task.getStartDate().toString();
+                    if (TaskType.taskWithBothDates().contains(task.getTaskType())) {
+                        dates += " " + task.getEndDate().toString();
+                        dates = "At: " + dates;
+                    } else {
+                        dates = "By: " + dates;
+                    }
                 }
+                overallTasksView.getChildren().add(TaskBox.getTaskBox(description, moduleCode, dates));
+                count += 1;
             }
-            String moduleCode = "";
-            overallTasksView.getChildren().add(TaskBox.getTaskBox(description, moduleCode, dates));
+            index += 1;
         }
+    }
+
+    private void updateExams() {
+        examsList.getChildren().clear();
+        examsList.getChildren().add(addHeader("EXAM"));
+        for (Pair item : allTasks) {
+            Task addTask = (Task) item.getValue();
+            if (addTask.getTaskType() == TaskType.EXAM) {
+                String description = addTask.getTaskType().name();
+                description += ": " + addTask.getName();
+                String dates = "";
+                Exam task = ((Exam)addTask);
+                dates += task.getStartDate().toString();
+                dates += " " + task.getEndDate().toString();
+                dates = "At: " + dates;
+                String moduleCode = (String) item.getKey();
+                examsList.getChildren().add(TaskBox.getTaskBox(description, moduleCode, dates));
+            }
+        }
+    }
+
+    private HBox addHeader(String label) {
+        HBox header = new HBox();
+        header.setPadding(new Insets(15, 0, 0, 0));
+        header.setAlignment(Pos.BOTTOM_CENTER);
+        Label headerText = new Label(label);
+        headerText.setStyle("-fx-font-size:20px");
+        headerText.setTextFill(Color.WHITE);
+        header.getChildren().add(headerText);
+        return header;
     }
 
     private void updateModulesList() {
@@ -411,8 +503,10 @@ public class MainWindow extends GridPane {
         modulesTabContainer.add(scrollPane, 1, 1, 1, 1);
 
         VBox gradesList = new VBox();
-        for (GradedComponent gradedComponent : gradedComponents) {
-            GradedComponentBox wrappedGradedComponent = GradedComponentBox.getGradedComponentsBox(gradedComponent);
+        for (int i = 0; i < gradedComponents.size(); i += 1) {
+            GradedComponent gradedComponent = gradedComponents.get(i);
+            GradedComponentBox wrappedGradedComponent = GradedComponentBox.getGradedComponentsBox(gradedComponent,
+                    (i + 1));
             gradesList.getChildren().add(wrappedGradedComponent);
         }
 
@@ -464,18 +558,16 @@ public class MainWindow extends GridPane {
 
         FileList fileList = currModule.getFiles();
         List<File> files = fileList.getList();
-        for (File file : files) {
-            FileBox wrappedFile = FileBox.getFileBox(file);
+        for (int i = 0; i < files.size(); i += 1) {
+            File file = files.get(i);
+            FileBox wrappedFile = FileBox.getFileBox(file, (i + 1));
             filesList.getChildren().add(wrappedFile);
         }
     }
 
-    private void updateExams() {
-        assert true;
-    }
-
     private void updateCalendar() throws CalendarSelectorException {
         CalendarMonthBox monthBox = new CalendarMonthBox("today", allTasks);
+        calendarView.getChildren().clear();
         calendarView.getChildren().add(monthBox);
     }
 
@@ -502,8 +594,15 @@ public class MainWindow extends GridPane {
         grid.getChildren().add(response);
         popup.getContent().add(grid);
         Window window = tabPane.getScene().getWindow();
-        popup.setX(600);
-        popup.setY(788);
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+
+        if (displayText.contains(HELP_POPUP) || displayText.contains(HELP_PAGE_POPUP)) {
+            popup.setX(primaryScreenBounds.getMinX());
+            popup.setY(primaryScreenBounds.getMinY());
+        } else {
+            popup.setX(((primaryScreenBounds.getMaxX() + primaryScreenBounds.getMinX()) / 2) - 200);
+            popup.setY(primaryScreenBounds.getMaxY());
+        }
         popup.show(window);
     }
 
