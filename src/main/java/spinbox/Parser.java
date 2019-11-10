@@ -223,7 +223,7 @@ public class Parser {
             throw new InputException(INVALID_COMMAND);
         }
 
-        LOGGER.info("Input: " + input + " associated with action: "+ action.toLowerCase());
+        LOGGER.info("Input: " + input + " associated with action: " + action.toLowerCase());
         switch (action) {
         case "bye":
             command = new ExitCommand();
