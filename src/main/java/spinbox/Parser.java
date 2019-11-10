@@ -25,6 +25,10 @@ import java.util.logging.Logger;
 public class Parser {
     private static final String INVALID_COMMAND = "Please provide a valid command:\n"
             + "'<action> <page> / <content>' or 'bye'";
+    private static final String PARSING_INPUT = "Parsing input into command: ";
+    private static final String LOGGER_INVALID_COMMAND = "Invalid command entered, error propagated upwards.";
+    private static final String EXIT_STATIC_METHOD = "Exiting static method commandBuilder with pageData: ";
+    private static final String ENTERING_COMMAND_BUILDER = "Entering static method commandBuilder";
     private static final int PAGEDATA_COMPONENT_MAX = 10;
 
     private static ArrayDeque<String> pageTrace;
@@ -53,17 +57,19 @@ public class Parser {
      */
     private static String emptyPageComponentAppender(String pageData, ArrayDeque<String> tempPageTrace,
                                                      String lastElement) {
+        LOGGER.setLevel(Level.FINER);
+        LOGGER.entering(Parser.class.getName(), "emptyPageComponentAppender");
+
         String fullPageData;
         fullPageData = pageData.concat(lastElement);
         tempPageTrace.removeLast();
         if (tempPageTrace.size() != 0) {
             String lastComponent = tempPageTrace.getLast();
-            String finalFullPageData;
-            finalFullPageData = fullPageData.concat(" " + lastComponent.toUpperCase());
-            LOGGER.info("Exiting static method emptyPageComponentAppender with pageData: " + finalFullPageData);
+            String finalFullPageData = fullPageData.concat(" " + lastComponent.toUpperCase());
+            LOGGER.exiting(Parser.class.getName(), "emptyPageComponentAppender");
             return finalFullPageData;
         } else {
-            LOGGER.info("Exiting static method emptyPageComponentAppender with pageData: " + fullPageData);
+            LOGGER.exiting(Parser.class.getName(), "emptyPageComponentAppender");
             return fullPageData;
         }
     }
@@ -77,6 +83,8 @@ public class Parser {
      */
     private static String singlePageComponentAppender(String pageData, String firstPageComponent,
                                                       ArrayDeque<String> tempPageTrace) {
+        LOGGER.setLevel(Level.FINER);
+        LOGGER.entering(Parser.class.getName(), "singlePageComponentAppender");
         String fullPageData;
         switch (firstPageComponent) {
         case "main":
@@ -90,7 +98,7 @@ public class Parser {
             // pageData is a module code
             fullPageData = pageData.concat("modules " + firstPageComponent.toUpperCase());
         }
-        LOGGER.info("Exiting static method singlePageComponentAppender with pageData: " + fullPageData);
+        LOGGER.exiting(Parser.class.getName(), "fullPageComponentAppender");
         return fullPageData;
     }
 
@@ -103,14 +111,17 @@ public class Parser {
      */
     private static String fullPageComponentAppender(String pageData, String firstPageComponent,
                                                     String secondPageComponent) throws InputException {
+        LOGGER.setLevel(Level.FINER);
+        LOGGER.entering(Parser.class.getName(), "fullPageComponentAppender");
+
         String fullPageData;
         if (firstPageComponent.equals("modules")) {
             fullPageData = pageData.concat("modules " + secondPageComponent.toUpperCase());
         } else {
-            LOGGER.warning("Invalid command entered, error propagated upwards.");
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
             throw new InputException(INVALID_COMMAND);
         }
-        LOGGER.info("Exiting static method fullPageComponentAppender with pageData: " + fullPageData);
+        LOGGER.exiting(Parser.class.getName(), "fullPageComponentAppender");
         return fullPageData;
     }
 
@@ -121,24 +132,27 @@ public class Parser {
      * @throws InputException If the input is invalid.
      */
     private static String commandBuilder(String inputPageData) throws InputException {
-        LOGGER.info("Entering static method commandBuilder");
+        LOGGER.info(ENTERING_COMMAND_BUILDER);
         String pageData = "";
         String[] pageComponent = inputPageData.split(" ");
         String firstPageComponent = pageComponent[0];
         ArrayDeque<String> tempPageTrace = pageTrace.clone();
 
         if (firstPageComponent.isEmpty()) {
+            assert !tempPageTrace.isEmpty();
             pageData = emptyPageComponentAppender(pageData, tempPageTrace, tempPageTrace.getLast());
         } else if (pageComponent.length == 1) {
+            assert !tempPageTrace.isEmpty();
             pageData = singlePageComponentAppender(pageData, firstPageComponent, tempPageTrace);
         } else if (pageComponent.length == 2) {
             String secondPageComponent = pageComponent[1];
             pageData = fullPageComponentAppender(pageData, firstPageComponent, secondPageComponent);
         } else {
-            LOGGER.warning("Invalid command entered, error propagated upwards.");
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
             throw new InputException(INVALID_COMMAND);
         }
-        LOGGER.info("Exiting static method commandBuilder with pageData: " + pageData);
+        assert !pageData.isEmpty();
+        LOGGER.info(EXIT_STATIC_METHOD + pageData);
         return pageData;
     }
 
@@ -149,17 +163,24 @@ public class Parser {
      * @throws InputException If the input is invalid.
      */
     private static String actionDecider(String actionInputTrimmed) throws InputException {
+        LOGGER.setLevel(Level.FINER);
+        LOGGER.entering(Parser.class.getName(), "actionDecider");
         String action;
-        if (actionInputTrimmed.equals("bye")) {
+        switch (actionInputTrimmed) {
+        case "bye":
             action = "bye";
-        } else if (actionInputTrimmed.equals("help")) {
+            break;
+        case "help":
             action = "help";
-        } else if (actionInputTrimmed.equals("populate")) {
+            break;
+        case "populate":
             action = "populate";
-        } else {
-            LOGGER.warning("Invalid command entered, error propagated upwards.");
+            break;
+        default:
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
             throw new InputException(INVALID_COMMAND);
         }
+        LOGGER.exiting(Parser.class.getName(), "actionDecider");
         return action;
     }
 
@@ -170,7 +191,7 @@ public class Parser {
      * @throws SpinBoxException If there are storage errors or input errors.
      */
     public static Command parse(String input) throws SpinBoxException {
-        LOGGER.info("Parsing input into command: " + input);
+        LOGGER.info(PARSING_INPUT + input);
         Command command;
         String action;
         String content;
@@ -196,12 +217,13 @@ public class Parser {
                 String fullPageData = commandBuilder(pageDataTrimmed.toLowerCase());
                 pageDataComponents = fullPageData.split(" ");
             }
+            assert !action.isEmpty();
         } catch (ArrayIndexOutOfBoundsException | StringIndexOutOfBoundsException e) {
-            LOGGER.warning("Invalid command entered, error propagated upwards.");
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
             throw new InputException(INVALID_COMMAND);
         }
 
-        LOGGER.info("Input: " + input + " associated with action: " + action.toLowerCase());
+        LOGGER.info("Input: " + input + " associated with action: "+ action.toLowerCase());
         switch (action) {
         case "bye":
             command = new ExitCommand();
@@ -246,7 +268,7 @@ public class Parser {
             command = new HelpCommand(content);
             break;
         default:
-            LOGGER.warning("Invalid command entered, error propagated upwards.");
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
             throw new InputException(INVALID_COMMAND);
         }
         return command;
