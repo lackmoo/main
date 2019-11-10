@@ -87,16 +87,16 @@ public class Parser {
         LOGGER.entering(Parser.class.getName(), "singlePageComponentAppender");
         String fullPageData;
         switch (firstPageComponent) {
-            case "main":
-            case "calendar":
-                fullPageData = pageData.concat(firstPageComponent);
-                break;
-            case "modules":
-                fullPageData = emptyPageComponentAppender(pageData, tempPageTrace, firstPageComponent);
-                break;
-            default:
-                // pageData is a module code
-                fullPageData = pageData.concat("modules " + firstPageComponent.toUpperCase());
+        case "main":
+        case "calendar":
+            fullPageData = pageData.concat(firstPageComponent);
+            break;
+        case "modules":
+            fullPageData = emptyPageComponentAppender(pageData, tempPageTrace, firstPageComponent);
+            break;
+        default:
+            // pageData is a module code
+            fullPageData = pageData.concat("modules " + firstPageComponent.toUpperCase());
         }
         LOGGER.exiting(Parser.class.getName(), "fullPageComponentAppender");
         return fullPageData;
@@ -165,18 +165,18 @@ public class Parser {
         LOGGER.entering(Parser.class.getName(), "actionDecider");
         String action;
         switch (actionInputTrimmed) {
-            case "bye":
-                action = "bye";
-                break;
-            case "help":
-                action = "help";
-                break;
-            case "populate":
-                action = "populate";
-                break;
-            default:
-                LOGGER.warning(LOGGER_INVALID_COMMAND);
-                throw new InputException(INVALID_COMMAND);
+        case "bye":
+            action = "bye";
+            break;
+        case "help":
+            action = "help";
+            break;
+        case "populate":
+            action = "populate";
+            break;
+        default:
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
+            throw new InputException(INVALID_COMMAND);
         }
         LOGGER.exiting(Parser.class.getName(), "actionDecider");
         return action;
@@ -223,51 +223,51 @@ public class Parser {
 
         LOGGER.info("Input: " + input + " associated with action: " + action.toLowerCase());
         switch (action) {
-            case "bye":
-                command = new ExitCommand();
-                break;
-            case "populate":
-                command = new PopulateCommand();
-                break;
-            case "view":
-                command = new ViewCommand(pageDataComponents, content);
-                break;
-            case "add":
-                command = new AddCommand(pageDataComponents, content);
-                break;
-            case "remove":
-                command = new RemoveCommand(pageDataComponents, content);
-                break;
-            case "update":
-                command = new UpdateCommand(pageDataComponents, content);
-                break;
-            case "export":
-                command = new ExportCommand(pageDataComponents, content);
-                break;
-            case "remove-*":
-                command = new RemoveMultipleCommand(pageDataComponents, content);
-                break;
-            case "update-*":
-                command = new UpdateMultipleCommand(pageDataComponents, content);
-                break;
-            case "score":
-                command = new ScoreCommand(pageDataComponents, content);
-                break;
-            case "find":
-                command = new FindCommand(pageDataComponents, content);
-                break;
-            case "set-date":
-                command = new SetDateCommand(pageDataComponents, content);
-                break;
-            case "set-name":
-                command = new SetNameCommand(pageDataComponents, content);
-                break;
-            case "help":
-                command = new HelpCommand(content);
-                break;
-            default:
-                LOGGER.warning(LOGGER_INVALID_COMMAND);
-                throw new InputException(INVALID_COMMAND);
+        case "bye":
+            command = new ExitCommand();
+            break;
+        case "populate":
+            command = new PopulateCommand();
+            break;
+        case "view":
+            command = new ViewCommand(pageDataComponents, content);
+            break;
+        case "add":
+            command = new AddCommand(pageDataComponents, content);
+            break;
+        case "remove":
+            command = new RemoveCommand(pageDataComponents, content);
+            break;
+        case "update":
+            command = new UpdateCommand(pageDataComponents, content);
+            break;
+        case "export":
+            command = new ExportCommand(pageDataComponents, content);
+            break;
+        case "remove-*":
+            command = new RemoveMultipleCommand(pageDataComponents, content);
+            break;
+        case "update-*":
+            command = new UpdateMultipleCommand(pageDataComponents, content);
+            break;
+        case "score":
+            command = new ScoreCommand(pageDataComponents, content);
+            break;
+        case "find":
+            command = new FindCommand(pageDataComponents, content);
+            break;
+        case "set-date":
+            command = new SetDateCommand(pageDataComponents, content);
+            break;
+        case "set-name":
+            command = new SetNameCommand(pageDataComponents, content);
+            break;
+        case "help":
+            command = new HelpCommand(content);
+            break;
+        default:
+            LOGGER.warning(LOGGER_INVALID_COMMAND);
+            throw new InputException(INVALID_COMMAND);
         }
         return command;
     }
