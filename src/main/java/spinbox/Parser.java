@@ -139,10 +139,8 @@ public class Parser {
         ArrayDeque<String> tempPageTrace = pageTrace.clone();
 
         if (firstPageComponent.isEmpty()) {
-            assert !tempPageTrace.isEmpty();
             pageData = emptyPageComponentAppender(pageData, tempPageTrace, tempPageTrace.getLast());
         } else if (pageComponent.length == 1) {
-            assert !tempPageTrace.isEmpty();
             pageData = singlePageComponentAppender(pageData, firstPageComponent, tempPageTrace);
         } else if (pageComponent.length == 2) {
             String secondPageComponent = pageComponent[1];
