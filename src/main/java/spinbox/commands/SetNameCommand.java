@@ -129,7 +129,6 @@ public class SetNameCommand extends Command {
                     int index = Integer.parseInt(content.split(" ")[1]) - 1;
                     Task taskSelected = tasks.get(index);
                     String taskDescription = taskSelected.toString();
-                    System.out.println(taskDescription);
                     String taskType = taskSelected.getTaskType().name();
                     replaceName = content.split("to: ")[1].trim();
                     if (taskSelected.getDone()) {
@@ -137,8 +136,7 @@ public class SetNameCommand extends Command {
                     } else {
                         doneStatus = 0;
                     }
-                    if (taskType.equals("EVENT") || taskType.equals("EXAM") || taskType.equals("LAB")
-                            || taskType.equals("LECTURE") || taskType.equals("TUTORIAL")) {
+                    if (taskSelected.isSchedulable() && !taskType.equals("DEADLINE")) {
                         start = new DateTime(taskDescription.substring(taskDescription.lastIndexOf("(at: ") + 5,
                                 taskDescription.lastIndexOf(" to")));
                         end = new DateTime(taskDescription.substring(taskDescription.lastIndexOf("to ") + 3,
