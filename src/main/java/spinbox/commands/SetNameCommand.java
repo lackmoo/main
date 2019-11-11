@@ -143,8 +143,6 @@ public class SetNameCommand extends Command {
                                 taskDescription.lastIndexOf(" to")));
                         end = new DateTime(taskDescription.substring(taskDescription.lastIndexOf("to ") + 3,
                                 taskDescription.lastIndexOf(")")));
-                        System.out.println(start.toString());
-                        System.out.println(end.toString());
                     } else if (taskType.equals("DEADLINE")) {
                         start = new DateTime(taskDescription.substring(taskDescription.lastIndexOf("(by: ") + 5,
                                 taskDescription.lastIndexOf(")")));
